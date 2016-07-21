@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"potato/utils"
+	"maildeliver/utils"
 	"time"
 
 	"gopkg.in/gomail.v2"
@@ -15,10 +15,12 @@ type Email struct {
 }
 
 type Message struct {
-	TO      string `json:"to" binding:"required"`
-	Cc      string `json:"cc"`
-	Subject string `json:"subject" binding:"required"`
-	Body    string `json:"body" binding:"required"`
+	TO          []string `json:"to" binding:"required"`
+	Cc          []string `json:"cc"`
+	Subject     string   `json:"subject" binding:"required"`
+	Body        string   `json:"body" binding:"required"`
+	ContentType int      `json:"content_type" binding:"required"`
+	IsSplitTo   bool     `json:"is_split_to" binding:"required"`
 }
 
 func initEmail() *Email {

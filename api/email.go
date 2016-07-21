@@ -2,9 +2,10 @@ package api
 
 import (
 	"net/http"
+	"os"
 
-	"potato/service"
-	"potato/utils"
+	"maildeliver/service"
+	"maildeliver/utils"
 
 	"github.com/gin-gonic/gin"
 )
@@ -14,20 +15,22 @@ type Email struct {
 }
 
 func (c *Email) send(context *gin.Context) {
-	formatMsg, err := c.initSendMessage(context)
+	formatMsgs, err := c.initSendMessage(context)
 	if err != nil {
 		context.JSON(http.StatusOK, gin.H{
 			"message": err,
 		})
 	}
+	os.Exit(1)
 	service.AllService.Email.Send(formatMsg)
 }
 
-func (c *Email) initSendMessage(context *gin.Context) (formatMsg service.Message, err error) {
-	if err = context.BindJSON(&formatMsg); err == nil {
-		return formatMsg, nil
+func (c *Email) initSendMessage(context *gin.Context) (formatMsg []service.Message, err error) {
+	var formatMsgs []service.Message
+	if err = context.BindJSON(&formatMsgs); err == nil {
+		return formatMsgs, nil
 	} else {
-		return service.Message{}, err
+		return []service.Message{}, err
 	}
 }
 

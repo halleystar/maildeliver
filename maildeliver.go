@@ -2,9 +2,9 @@ package main
 
 import (
 	"log"
-	"potato/api"
-	"potato/service"
-	"potato/utils"
+	"maildeliver/api"
+	"maildeliver/service"
+	"maildeliver/utils"
 )
 
 const (
