@@ -15,7 +15,6 @@ type Email struct {
 }
 
 type Message struct {
-	From    string `json:"from"`
 	TO      string `json:"to" binding:"required"`
 	Cc      string `json:"cc"`
 	Subject string `json:"subject" binding:"required"`
@@ -52,7 +51,7 @@ func (e Email) initMessage(rawMsg Message) *gomail.Message {
 }
 
 /*
-发送邮箱核心服务, 支持并行发送
+发送邮箱核心服务, 支持并行发送，该方法负责发送每封邮件内容不想同的邮件
 */
 func (email Email) sendMessage() {
 	dialer := gomail.NewDialer(utils.Cfg.EmailHost, utils.Cfg.Port, utils.Cfg.Username, utils.Cfg.Password)
