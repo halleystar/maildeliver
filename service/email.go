@@ -41,51 +41,20 @@ func (e Email) initMessage(rawMsg Message) *gomail.Message {
 	} else {
 		msg.SetHeader("From", rawMsg.From)
 	}
-	fmt.Println("end.....")
-	//	msg.SetHeader("To", rawMsg.TO)
-	//	msg.SetAddressHeader("Cc", rawMsg.Cc, "")
-	//	msg.SetHeader("Subject", rawMsg.Subject)
-	//	msg.SetBody("text/html", rawMsg.Body)
-	msg.SetHeader("To", "1247920356@qq.com")
-	msg.SetHeader("Subject", "subject")
-	msg.SetBody("text/html", "hahahha")
+	msg.SetHeader("To", rawMsg.TO)
+	msg.SetAddressHeader("Cc", rawMsg.Cc, "")
+	msg.SetHeader("Subject", rawMsg.Subject)
+	msg.SetBody("text/html", rawMsg.Body)
+	//	msg.SetHeader("To", "1247920356@qq.com")
+	//	msg.SetHeader("Subject", "subject")
+	//	msg.SetBody("text/html", "hahahha")
 	return msg
 }
 
+/*
+发送邮箱核心服务, 支持并行发送
+*/
 func (email Email) sendMessage() {
-	go func() {
-		d := gomail.NewDialer(utils.Cfg.EmailHost, utils.Cfg.Port, utils.Cfg.Username, utils.Cfg.Password)
-		var s gomail.SendCloser
-		var err error
-		open := false
-		for {
-			select {
-			case m, ok := <-email.msgQueue:
-				if !ok {
-					return
-				}
-				if !open {
-					if s, err = d.Dial(); err != nil {
-						panic(err)
-					}
-					open = true
-				}
-				if err := gomail.Send(s, m); err != nil {
-					log.Print(err)
-				}
-			case <-time.After(30 * time.Second):
-				if open {
-					if err := s.Close(); err != nil {
-						panic(err)
-					}
-					open = false
-				}
-			}
-		}
-	}()
-}
-
-func (email Email) batch() {
 	dialer := gomail.NewDialer(utils.Cfg.EmailHost, utils.Cfg.Port, utils.Cfg.Username, utils.Cfg.Password)
 	var sendCloser gomail.SendCloser
 	ticket := utils.NewTicket()
@@ -116,7 +85,6 @@ func (email Email) batch() {
 				}
 				open = false
 			}
-			return
 		}
 	}
 }
