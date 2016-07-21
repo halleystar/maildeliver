@@ -84,3 +84,39 @@ func (email Email) sendMessage() {
 		}
 	}()
 }
+
+func (email Email) batch() {
+	dialer := gomail.NewDialer(utils.Cfg.EmailHost, utils.Cfg.Port, utils.Cfg.Username, utils.Cfg.Password)
+	var sendCloser gomail.SendCloser
+	ticket := utils.NewTicket()
+	open := false
+	for {
+		select {
+		case msg, ok := <-email.msgQueue:
+			if !ok {
+				return
+			}
+			if !open {
+				if sendCloser, err := dialer.Dial(); err != nil {
+					panic(err)
+				}
+				open = true
+			}
+			ticket.Done()
+			go func() {
+				defer ticket.Add()
+				if err := gomail.Send(sendCloser, msg); err != nil {
+					log.Print(err)
+				}
+			}()
+		case <-time.After(30 * time.Second):
+			if open {
+				if err := sendCloser.Close(); err != nil {
+					panic(err)
+				}
+				open = false
+			}
+			return
+		}
+	}
+}
