@@ -12,6 +12,7 @@ func NewTicket() *Ticket {
 	for i := 0; i < ticket.total; i++ {
 		ticket.signal <- 1
 	}
+	return ticket
 }
 
 func (ticket *Ticket) Add() {

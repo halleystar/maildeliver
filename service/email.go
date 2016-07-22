@@ -1,7 +1,6 @@
 package service
 
 import (
-	"fmt"
 	"log"
 
 	"maildeliver/utils"
@@ -30,25 +29,21 @@ func initEmail() *Email {
 	return email
 }
 
-func (e Email) Send(rawMsg Message) {
-	msg := e.initMessage(rawMsg)
-	e.msgQueue <- msg
+func (e Email) Send(rawMsgs []Message) {
+	msgs := e.initMessage(rawMsgs)
+	e.msgQueue <- msgs
 }
 
-func (e Email) initMessage(rawMsg Message) *gomail.Message {
+func (e Email) initMessage(rawMsg []Message) *gomail.Message {
 	msg := gomail.NewMessage()
-	if rawMsg.From == "" {
-		msg.SetHeader("From", utils.Cfg.FromEmail)
-	} else {
-		msg.SetHeader("From", rawMsg.From)
-	}
-	msg.SetHeader("To", rawMsg.TO)
-	msg.SetAddressHeader("Cc", rawMsg.Cc, "")
-	msg.SetHeader("Subject", rawMsg.Subject)
-	msg.SetBody("text/html", rawMsg.Body)
-	//	msg.SetHeader("To", "1247920356@qq.com")
-	//	msg.SetHeader("Subject", "subject")
-	//	msg.SetBody("text/html", "hahahha")
+	msg.SetHeader("From", utils.Cfg.FromEmail)
+	//	msg.SetHeader("To", rawMsg.TO...)
+	//	msg.SetHeader("Cc", rawMsg.Cc...)
+	//	msg.SetHeader("Subject", rawMsg.Subject)
+	//	msg.SetBody("text/html", rawMsg.Body)
+	msg.SetHeader("To", "1247920356@qq.com")
+	msg.SetHeader("Subject", "subject")
+	msg.SetBody("text/html", "hahahha")
 	return msg
 }
 
@@ -58,34 +53,37 @@ func (e Email) initMessage(rawMsg Message) *gomail.Message {
 func (email Email) sendMessage() {
 	dialer := gomail.NewDialer(utils.Cfg.EmailHost, utils.Cfg.Port, utils.Cfg.Username, utils.Cfg.Password)
 	var sendCloser gomail.SendCloser
+	var err error
 	ticket := utils.NewTicket()
 	open := false
-	for {
-		select {
-		case msg, ok := <-email.msgQueue:
-			if !ok {
-				return
-			}
-			if !open {
-				if sendCloser, err := dialer.Dial(); err != nil {
-					panic(err)
+	go func() {
+		for {
+			select {
+			case msg, ok := <-email.msgQueue:
+				if !ok {
+					return
 				}
-				open = true
-			}
-			ticket.Done()
-			go func() {
-				defer ticket.Add()
-				if err := gomail.Send(sendCloser, msg); err != nil {
-					log.Print(err)
+				if !open {
+					if sendCloser, err = dialer.Dial(); err != nil {
+						panic(err)
+					}
+					open = true
 				}
-			}()
-		case <-time.After(30 * time.Second):
-			if open {
-				if err := sendCloser.Close(); err != nil {
-					panic(err)
+				ticket.Done()
+				go func() {
+					defer ticket.Add()
+					if err := gomail.Send(sendCloser, msg); err != nil {
+						log.Print(err)
+					}
+				}()
+			case <-time.After(30 * time.Second):
+				if open {
+					if err := sendCloser.Close(); err != nil {
+						panic(err)
+					}
+					open = false
 				}
-				open = false
 			}
 		}
-	}
+	}()
 }

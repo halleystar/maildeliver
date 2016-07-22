@@ -16,6 +16,7 @@ type ServiceSettings struct {
 	Username  string `json:"username"`
 	Password  string `json:"password"`
 	FromEmail string `json:"from_email"`
+	TicketMax int    `json:"ticket_max"`
 }
 
 type Config struct {

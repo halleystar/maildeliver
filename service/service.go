@@ -1,9 +1,5 @@
 package service
 
-import (
-	"fmt"
-)
-
 type Service struct {
 	Email *Email
 }
@@ -17,7 +13,5 @@ func InitService() {
 func newService() *Service {
 	service := &Service{}
 	service.Email = initEmail()
-	fmt.Println("wwwwwwwwwwwww")
-	fmt.Print(service)
 	return service
 }

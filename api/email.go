@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 
@@ -21,8 +22,7 @@ func (c *Email) send(context *gin.Context) {
 			"message": err,
 		})
 	}
-	os.Exit(1)
-	service.AllService.Email.Send(formatMsg)
+	service.AllService.Email.Send(formatMsgs)
 }
 
 func (c *Email) initSendMessage(context *gin.Context) (formatMsg []service.Message, err error) {
@@ -32,6 +32,25 @@ func (c *Email) initSendMessage(context *gin.Context) (formatMsg []service.Messa
 	} else {
 		return []service.Message{}, err
 	}
+}
+
+func (c *Email) formatSendMessage(formatMsgs []service.Message) []service.Message {
+	var tmpMsgQueue []service.Message
+	for k, formatMsg := range formatMsgs {
+		if formatMsg.IsSplitTo {
+			var dest []string
+			if len(formatMsg.To) > 1 {
+				for _, v := range formatMsg.To {
+
+				}
+			}
+		}
+		delete(formatMsgs, k)
+	}
+}
+
+func (c *Email) decideContentType(content_type int) string {
+
 }
 
 func initEmail(r *gin.Engine) {

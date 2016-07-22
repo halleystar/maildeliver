@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"maildeliver/api"
 	"maildeliver/service"
@@ -18,5 +19,6 @@ func main() {
 	utils.LoadConfig(CONFIG_FOLDER)
 	//store.Init()
 	service.InitService()
+	fmt.Println("heheheh")
 	api.InitApi()
 }
