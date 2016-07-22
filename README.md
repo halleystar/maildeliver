@@ -16,7 +16,7 @@
         "to": [
             "1247920356@qq.com",  "1247920355@qq.com"
         ],
-        "cc":[],
+        "cc":["1247920353@qq.com", "1247920354@qq.com"],
         "subject": "subject",
         "body": "content",
         "content_type": 1,
